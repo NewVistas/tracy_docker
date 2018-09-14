@@ -43,7 +43,8 @@ RUN apt update; apt -yq upgrade; \
       python3-numpy \
       python3-numpydoc \
       python3-scipy \
-      sudo  \
+      sudo \
+      nano \
       vim \
       wget  \
       xxdiff \
