@@ -1,5 +1,5 @@
 
-FROM dft_qe4tracy:flatten
+FROM dft_qe4tracy
 
 ENV USER_NAME "tracy"
 ENV HOME_DIR  "/home/tracy"

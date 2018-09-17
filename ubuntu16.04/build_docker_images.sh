@@ -35,7 +35,7 @@ docker rm tracy_science_squash
 docker rmi tracy_science:squash
 
 # build pslibrary image, this will be used by matdb. It's base on dft_qe4tracy
-#docker image build -t pslibrary4tracy -f pslibrary.dockerfile .
+docker image build -t pslibrary4tracy -f pslibrary.dockerfile .
 
 # Use this command to start the docker container
 #docker run -it --rm --user=tracy tracy_science /bin/bash
