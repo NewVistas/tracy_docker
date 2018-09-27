@@ -26,6 +26,9 @@ docker image build -t lammps4tracy -f lammps.dockerfile .
 #build pymatnest
 docker image build -t pymatnest4tracy -f pymatnest.dockerfile .
 
+#build mlip
+docker image build -t mlip4tracy -f mlip.dockerfile .
+
 # build super image
 docker image build --squash -t tracy_science:squash -f tracy_science.dockerfile .
 docker run -d --name=tracy_science_squash tracy_science:squash
