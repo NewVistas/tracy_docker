@@ -1,0 +1,87 @@
+ #   MLIP is a software for Machine Learning Interatomic Potentials
+ #   MLIP is released under the "New BSD License", see the LICENSE file.
+ #   Contributors: Ivan Novikov
+
+SHELL = /bin/sh
+
+# ------ FILES ------
+#PATH = .
+SRCPATH = ../src/
+BINPATH = ../make/
+LIBPATH = ../lib/
+
+SRCMLP 		= $(wildcard $(SRCPATH)*.cpp) $(wildcard $(SRCPATH)common/*.cpp) $(wildcard $(SRCPATH)drivers/*.cpp)
+SRCBIN 		= $(SRCPATH)utils/mlp.cpp
+SRCLMP 		= $(SRCPATH)external/MLIP4LAMMPS/lammps_interface.cpp
+HEADERSMLP 	= $(wildcard $(SRCPATH)*.h) $(wildcard $(SRCPATH)common/*.h) $(wildcard $(SRCPATH)drivers/*.h)
+HEADERSUTL 	= $(wildcard $(SRCPATH)utils/*.h)
+
+INCDIR		= ../blas/include
+INCLIB		= ../blas/lib/libopenblas.a
+BLAS_LIBPATH 	= ../blas/lib
+BLAS_SLIB 	= -lopenblas
+BLAS_OBJPATH 	= ../lib/blas_obj/
+
+# ------ DEFINITIONS ------
+
+OBJCMN 		= $(patsubst %.cpp,%.o,$(SRCMLP))
+OBJCMN_SRL 	= $(patsubst %.cpp,%_srl.o,$(SRCMLP))
+OBJBIN 		= $(patsubst %.cpp,%.o,$(SRCBIN))
+OBJBIN_SRL 	= $(patsubst %.cpp,%_srl.o,$(SRCBIN))
+OBJLMP 		= $(patsubst %.cpp,%_srl.o,$(SRCLMP))
+
+LIB 		= $(LIBPATH)libmlip.a
+BIN 		= $(BINPATH)mlp
+
+# ------ SETTINGS ------
+
+CC 		= mpicxx
+CC_SRL	= g++
+CFLAGS 		= -O2 -g -Wall -std=c++11 
+LINK 		= mpicxx 
+LINK_SRL	= g++
+LINKFLAGS 	= -o 
+ARCHIVE 	= ar
+ARCHFLAG1 	= -x
+ARCHFLAG2 	= -rvs
+
+# ------ MAKE PROCEDURE ------
+
+all:	$(OBJCMN) 
+
+lib: 	$(OBJCMN_SRL) $(OBJLMP)
+	(cd ../blas/OpenBLAS/ && make && make install)
+	mkdir -p ../lib
+	mkdir -p $(BLAS_OBJPATH)
+	cd $(BLAS_OBJPATH) && $(ARCHIVE) $(ARCHFLAG1) ../$(INCLIB) 
+	$(ARCHIVE) $(ARCHFLAG2) $(LIB) $(OBJCMN_SRL) $(OBJLMP) $(BLAS_OBJPATH)*.o 
+	rm -f $(OBJCMN_SRL) $(OBJLMP)
+
+mlp:	$(OBJCMN) $(OBJBIN)
+	(cd ../blas/OpenBLAS/ && make && make install)
+	$(LINK) $^  $(LINKFLAGS)  $(BIN) -L$(BLAS_LIBPATH) -lopenblas
+
+mlp_srl:	$(OBJCMN_SRL) $(OBJBIN_SRL)
+	(cd ../blas/OpenBLAS/ && make && make install)
+	$(LINK_SRL) $^  $(LINKFLAGS)  $(BIN) -L$(BLAS_LIBPATH) -lopenblas
+	rm -f $(OBJCMN_SRL) $(OBJBIN_SRL)
+
+# ------ COMPILE RULES ------
+
+$(OBJCMN): ADDCFLAG := -I$(INCDIR) -DMLIP_MPI
+$(OBJCMN_SRL): ADDCFLAG := -I$(INCDIR) 
+$(OBJBIN): ADDCFLAG := -I$(INCDIR) -DMLIP_MPI # -DMLIP_DEBUG
+$(OBJBIN_SRL): ADDCFLAG := -I$(INCDIR) # -DMLIP_DEBUG
+
+%.o: %.cpp $(HEADERSMLP) $(HEADERSUTL)
+	$(CC) $(CFLAGS) $(ADDCFLAG) -c $< -o $@
+
+%_srl.o: %.cpp $(HEADERSMLP) $(HEADERSUTL)
+	$(CC_SRL) $(CFLAGS) $(ADDCFLAG) -c $< -o $@
+
+# ------ CLEAN ------
+
+clean:
+	rm -f $(OBJCMN) $(OBJCMN_SRL) $(OBJBIN) $(OBJBIN_SRL) $(BIN) $(OBJLMP) $(SRCPATH)external/MLIP4USPEX/relax_mpi.o  \
+	$(SRCPATH)utils/*.o $(LIB) $(SRCPATH)*~ 
+
