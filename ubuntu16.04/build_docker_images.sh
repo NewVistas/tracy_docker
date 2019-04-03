@@ -19,17 +19,6 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# build wannier
-if [ ${DEV_MODE} == true ] ; then
-  docker image build -t wannier4tracy -f wannier.dockerfile . --build-arg DEV_MODE="YES"
-else
-  docker image build -t wannier4tracy -f wannier.dockerfile . --build-arg DEV_MODE="NO"
-fi
-if [ $? -ne 0 ]; then
-  echo "ERROR on building wannier4tracy"
-  exit 1
-fi
-
 # build dft_qe
 docker image build -t dft_qe4tracy:squash -f dft_qe.dockerfile . 
 if [ $? -ne 0 ]; then
@@ -67,6 +56,29 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# build pslibrary image, this will be used by matdb. It's base on dft_qe4tracy
+docker image build -t pslibrary4tracy -f pslibrary.dockerfile .
+if [ $? -ne 0 ]; then
+  echo "ERROR on building image pslibrary4tracy"
+  exit 1
+fi
+
+# Temporarily disable the rest projects for M1
+# Note: We upgraded python to 3.5 from the ubuntu4tracy image, 
+#   but quip may not support python3 yet. Need to figure that out 
+#   when we building quip/lammps/pymatnest
+exit 0
+
+# build wannier
+if [ ${DEV_MODE} == true ] ; then
+  docker image build -t wannier4tracy -f wannier.dockerfile . --build-arg DEV_MODE="YES"
+else
+  docker image build -t wannier4tracy -f wannier.dockerfile . --build-arg DEV_MODE="NO"
+fi
+if [ $? -ne 0 ]; then
+  echo "ERROR on building wannier4tracy"
+  exit 1
+fi
 
 # build soapxx
 docker image build -t soap4tracy -f soap.dockerfile . 
@@ -130,14 +142,6 @@ fi
 docker rmi tracy_science:squash
 if [ $? -ne 0 ]; then
   echo "ERROR on removing image tracy_science:squash"
-  exit 1
-fi
-
-
-# build pslibrary image, this will be used by matdb. It's base on dft_qe4tracy
-docker image build -t pslibrary4tracy -f pslibrary.dockerfile .
-if [ $? -ne 0 ]; then
-  echo "ERROR on building image pslibrary4tracy"
   exit 1
 fi
 
