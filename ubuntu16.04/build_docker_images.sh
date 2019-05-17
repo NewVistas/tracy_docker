@@ -1,4 +1,8 @@
 #! /bin/bash
+CUR_DIR=$(pwd)
+PARENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+cd $PARENT_DIR
 
 DEV_MODE=false
 while [[ $# -gt 0 ]] && [[ ."$1" = .--* ]] ;
@@ -20,7 +24,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # build dft_qe
-docker image build -t dft_qe4tracy:squash -f dft_qe.dockerfile . 
+docker image build -t dft_qe4tracy:squash -f dft_qe.dockerfile .
 if [ $? -ne 0 ]; then
   echo "ERROR on building dft_qe4tracy:squash"
   exit 1
@@ -64,8 +68,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Temporarily disable the rest projects for M1
-# Note: We upgraded python to 3.5 from the ubuntu4tracy image, 
-#   but quip may not support python3 yet. Need to figure that out 
+# Note: We upgraded python to 3.5 from the ubuntu4tracy image,
+#   but quip may not support python3 yet. Need to figure that out
 #   when we building quip/lammps/pymatnest
 exit 0
 
@@ -81,7 +85,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # build soapxx
-docker image build -t soap4tracy -f soap.dockerfile . 
+docker image build -t soap4tracy -f soap.dockerfile .
 if [ $? -ne 0 ]; then
   echo "ERROR on building soap4tracy"
   exit 1
@@ -95,21 +99,21 @@ if [ $? -ne 0 ]; then
 fi
 
 # build lammps
-docker image build -t lammps4tracy -f lammps.dockerfile . 
+docker image build -t lammps4tracy -f lammps.dockerfile .
 if [ $? -ne 0 ]; then
   echo "ERROR on building lammps4tracy"
   exit 1
 fi
 
 #build pymatnest
-docker image build -t pymatnest4tracy -f pymatnest.dockerfile . 
+docker image build -t pymatnest4tracy -f pymatnest.dockerfile .
 if [ $? -ne 0 ]; then
-  echo "ERROR on building pymatnest4tracy" 
+  echo "ERROR on building pymatnest4tracy"
   exit 1
 fi
 
 # build super image
-docker image build --squash -t tracy_science:squash -f tracy_science.dockerfile . 
+docker image build --squash -t tracy_science:squash -f tracy_science.dockerfile .
 if [ $? -ne 0 ]; then
   echo "ERROR on building tracy_science:squash"
   exit 1
@@ -144,6 +148,8 @@ if [ $? -ne 0 ]; then
   echo "ERROR on removing image tracy_science:squash"
   exit 1
 fi
+
+cd $CUR_DIR
 
 # Use this command to start the docker container
 #docker run -it --rm --user=tracy tracy_science /bin/bash
