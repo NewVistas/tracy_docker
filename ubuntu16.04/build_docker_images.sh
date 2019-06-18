@@ -2,7 +2,7 @@
 CUR_DIR=$(pwd)
 PARENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-cd $PARENT_DIR
+cd "$PARENT_DIR"
 
 DEV_MODE=false
 while [[ $# -gt 0 ]] && [[ ."$1" = .--* ]] ;
@@ -149,7 +149,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-cd $CUR_DIR
+cd "$CUR_DIR"
 
 # Use this command to start the docker container
 #docker run -it --rm --user=tracy tracy_science /bin/bash
