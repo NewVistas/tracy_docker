@@ -36,10 +36,10 @@ RUN apt update; apt -yq upgrade; \
       libfftw3-double3   \
       net-tools  \
       openssh-server  \
-      python \
-      python-pip \
-      python-dev \
-      python-setuptools \
+      python3 \
+      python3-pip \
+      python3-dev \
+      python3-setuptools \
       python3-numpy \
       python3-numpydoc \
       python3-scipy \
@@ -52,10 +52,10 @@ RUN apt update; apt -yq upgrade; \
       #{{ addtional packages needed for SOAP
       software-properties-common \
       libboost-all-dev \
-      python-sklearn \
-      python-psutil \
-      python-h5py \
-      python-sh \
+      python3-sklearn \
+      python3-psutil \
+      python3-h5py \
+      python3-sh \
       #}}
       xdg-utils \
       --no-install-recommends \
@@ -63,13 +63,13 @@ RUN apt update; apt -yq upgrade; \
     && rm -rf /var/apt/lists/* \
     && ssh-keygen -A
 
-RUN python -m pip install --upgrade pip \
-    && python -m pip install mpi4py \
-    && python -m pip install ase \
-    && python -m pip install --upgrade mpi4py \
-    && python -m pip install --upgrade ase \
-    && python -m pip install boost \
-    && python -m pip install lxml
+RUN python3 -m pip install --upgrade pip \
+    && python3 -m pip install mpi4py \
+    && python3 -m pip install ase \
+    && python3 -m pip install --upgrade mpi4py \
+    && python3 -m pip install --upgrade ase \
+    && python3 -m pip install boost \
+    && python3 -m pip install lxml
 
 # we create the user 'tracy' and add it to the list of sudoers
 RUN adduser -q --disabled-password --gecos tracy tracy          \
